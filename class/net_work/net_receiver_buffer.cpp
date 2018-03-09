@@ -7,9 +7,7 @@
 #include <boost/bind.hpp>
 #include "net_packet_config.h"
 #include "net_packet.h"
-
-
-
+#include "log.h"
 
 net_receiver_buffer::net_receiver_buffer(std::shared_ptr<client_session> session)
         : session_(session),
@@ -17,6 +15,7 @@ net_receiver_buffer::net_receiver_buffer(std::shared_ptr<client_session> session
 {
     recv_buf_ = new byte[SOCKET_TCP_BUFFER];
     memset(recv_buf_, 0, SOCKET_TCP_BUFFER);
+    packet_processor_ = std::make_shared<packet_processor>(recv_buf_, recvd_size_);
 }
 
 net_receiver_buffer::~net_receiver_buffer()
@@ -58,10 +57,8 @@ void net_receiver_buffer::handle_read(const boost::system::error_code& ec,
             if (!ec)
             {
                 recvd_size_ += bytes_transferred;
-//                std::string msg(recv_buf_, recvd_size_);
-//                recvd_size_ = 0;
-//                handle_message(msg);
-                scan_packets();
+//                scan_packets();
+                packet_processor_->processor_packet(session);
                 start_async_read();
             }
         }
@@ -128,6 +125,4 @@ void net_receiver_buffer::handle_message(const std::string &msg)
         session->handle_message(msg);
     }
 }
-
-
 
