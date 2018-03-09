@@ -3,6 +3,7 @@
 //
 #include <vector>
 #include <list>
+#include <unordered_set>
 
 #include "client_session_manager.h"
 #include "client_session.h"
@@ -23,7 +24,7 @@ public:
 
     }
 
-    std::list<std::shared_ptr<client_session>>&
+    std::unordered_set<std::shared_ptr<client_session>>&
     get_current_slot()
     {
         return sessions_[cur_index_];
@@ -31,7 +32,7 @@ public:
 
     void add(std::shared_ptr<client_session> value)
     {
-        get_current_slot().push_back(value);
+        get_current_slot().insert(value);
     }
 
     void start()
@@ -69,7 +70,7 @@ private:
 private:
     int cur_index_;
     std::shared_ptr<timer> timer_;
-    std::vector<std::list<std::shared_ptr<client_session>>> sessions_;
+    std::vector<std::unordered_set<std::shared_ptr<client_session>>> sessions_;
 };
 
 
