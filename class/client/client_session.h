@@ -11,6 +11,7 @@
 using boost::asio::ip::tcp;
 
 class net_receiver_buffer;
+class net_send_buffer;
 class client_acceptor;
 class net_packet;
 
@@ -31,13 +32,20 @@ public:
     void start_async_read();
 
     std::shared_ptr<net_receiver_buffer> get_receiver_buffer();
+    std::shared_ptr<net_send_buffer> get_send_buffer();
 
-    void process_packet(word main_id, word sub_id, std::shared_ptr<net_packet> packet);
+
+    // 接受数据包
+    void receive_packet(word main_id, word sub_id, std::shared_ptr<net_packet> packet);
+
+    // 发送数据包
+    void send_packet(word main_id, word sub_id, std::shared_ptr<net_packet> packet);
 
     void close();
 private:
     tcp::socket socket_;
     std::shared_ptr<net_receiver_buffer> receiver_buffer_;
+    std::shared_ptr<net_send_buffer> send_buffer_;
     std::weak_ptr<client_acceptor> client_acceptor_;
 };
 

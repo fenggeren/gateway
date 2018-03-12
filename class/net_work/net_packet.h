@@ -7,57 +7,59 @@
 
 #include <cstddef>
 #include <memory>
+#include <string>
+
 #include "net_packet_config.h"
 
 class client_session;
+class net_packet;
+
+
+std::shared_ptr<net_packet>
+create_packet(const byte* data, size_t size);
+
 
 class net_packet
 {
 public:
-//    virtual void init(const byte* data, size_t size) = 0;
 
-    static std::shared_ptr<net_packet> create(const byte* data, size_t size);
+    net_packet(const byte* data, size_t size);
 
-private:
-    tcp_head head_;
+    virtual ~net_packet();
+
+//    static std::shared_ptr<net_packet> create(const byte* data, size_t size);
+
+    const byte* get_buffer() const
+    {
+        return buffer_;
+    }
+
+    const size_t get_size() const
+    {
+        return size_;
+    }
+
+
+protected:
+    byte* buffer_;
+    size_t size_;
 };
 
-
-
-
-
-
-
-class packet_processor
+class net_msg_packet
 {
 public:
-
-    packet_processor(byte*& recv_buf, size_t& size)
-            :recv_buf_(recv_buf),
-             recvd_size_(size)
+    net_msg_packet(const byte* data, size_t size):
+            msg_((const char*)data, size)
     {
 
     }
 
-    ~packet_processor(){}
-
-    // 给定数据， 创建数据包结构
-    virtual int processor_packet(std::shared_ptr<client_session> session);
-
-protected:
-    byte* &recv_buf_;
-    size_t &recvd_size_;
+private:
+    std::string msg_;
 };
 
-class standard_packet_processor : public packet_processor
-{
-public:
-    standard_packet_processor(byte*& recv_buf, size_t& size):
-            packet_processor(recv_buf, size)
-    {}
 
-    virtual int processor_packet(std::shared_ptr<client_session> session);
-};
+
 
 
 

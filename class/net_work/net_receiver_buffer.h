@@ -12,7 +12,7 @@
 
 class client_session;
 class net_packet;
-class packet_processor;
+class receive_packet_processor;
 
 class net_receiver_buffer : public std::enable_shared_from_this<net_receiver_buffer>
 {
@@ -38,7 +38,7 @@ private:
     size_t recvd_size_;
 
     std::weak_ptr<client_session> session_;
-    std::shared_ptr<packet_processor> packet_processor_;
+    std::shared_ptr<receive_packet_processor> packet_processor_;
 };
 
 

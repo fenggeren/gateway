@@ -8,6 +8,7 @@
 #include "net_packet_config.h"
 #include "net_packet.h"
 #include "log.h"
+#include "receive_packet_processor.h"
 
 net_receiver_buffer::net_receiver_buffer(std::shared_ptr<client_session> session)
         : session_(session),
@@ -15,7 +16,7 @@ net_receiver_buffer::net_receiver_buffer(std::shared_ptr<client_session> session
 {
     recv_buf_ = new byte[SOCKET_TCP_BUFFER];
     memset(recv_buf_, 0, SOCKET_TCP_BUFFER);
-    packet_processor_ = std::make_shared<packet_processor>(recv_buf_, recvd_size_);
+    packet_processor_ = std::make_shared<receive_packet_processor>(recv_buf_, recvd_size_);
 }
 
 net_receiver_buffer::~net_receiver_buffer()
@@ -89,7 +90,7 @@ void net_receiver_buffer::scan_packets()
         try
         {
             // 处理数据
-            auto packet = net_packet::create(&recv_buf_[sizeof(tcp_head)],
+            auto packet = create_packet(&recv_buf_[sizeof(tcp_head)],
                                              packet_size - sizeof(tcp_head));
             if (packet)
             {
@@ -98,7 +99,7 @@ void net_receiver_buffer::scan_packets()
                 {
                     memmove(recv_buf_, recv_buf_ + packet_size, recvd_size_);
                 }
-                session->process_packet(head->command.main_cmd_id, head->command.sub_cmd_id, packet);
+                session->receive_packet(head->command.main_cmd_id, head->command.sub_cmd_id, packet);
             }
             else
             {
